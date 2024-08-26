@@ -27,9 +27,9 @@ jobs:
 
     - name: Build and push Docker image
       env:
-        ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        ECR_REGISTRY: 005010853392.dkr.ecr.us-east-1.amazonaws.com
         ECR_REPOSITORY: spark_job_container
-        IMAGE_TAG: ${{ github.sha }}
+        IMAGE_TAG: latest
 
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -42,6 +42,8 @@ jobs:
     steps:
     - name: Run PySpark job on EMR
       run: |
-        aws emr add-steps --cluster-id your-emr-cluster-id \
-        --steps Type=CUSTOM_JAR,Name="RunPySparkJob",ActionOnFailure=CONTINUE,Jar=command-runner.jar,\
-        Args=["spark-submit","--deploy-mode","cluster","--conf","spark.executor.instances=2","s3a://your-bucket-name/path-to-your-script.py"]
+        aws emr add-steps --cluster-id ${{ secrets.EMR_CLUSTER_ID }} \
+        --steps Type=CUSTOM_JAR,Name="RunContainerizedSparkJob",ActionOnFailure=CONTINUE,Jar=command-runner.jar,\
+        Args=["spark-submit","--master","yarn","--deploy-mode","cluster","--conf","spark.executor.instances=2",\
+        "--conf","spark.kubernetes.container.image=005010853392.dkr.ecr.us-east-1.amazonaws.com/spark_job_container:latest",\
+        "local:///app/emr_spark_job.py"]
