@@ -48,8 +48,7 @@ jobs:
 
     steps:
     - name: Set up environment variables
-    - run: |
-        echo "CLUSTER_ID=${{ secrets.EMR_CLUSTER_ID }}" >> $GITHUB_ENV
+    - run: echo "CLUSTER_ID=${{ secrets.EMR_CLUSTER_ID }}" >> $GITHUB_ENV
 
     - name: Run PySpark job on EMR
       run: |
