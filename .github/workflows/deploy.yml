@@ -47,10 +47,15 @@ jobs:
     needs: build-and-push
 
     steps:
+    - name: Set up environment variables
+    - run: |
+        echo "CLUSTER_ID=${{ secrets.EMR_CLUSTER_ID }}" >> $GITHUB_ENV
+
     - name: Run PySpark job on EMR
       run: |
-        aws emr add-steps --cluster-id ${{ secrets.EMR_CLUSTER_ID }} \
+        aws emr add-steps --cluster-id $CLUSTER_ID \
         --steps Type=CUSTOM_JAR,Name="RunContainerizedSparkJob",ActionOnFailure=CONTINUE,Jar=command-runner.jar,\
         Args=["spark-submit","--master","yarn","--deploy-mode","cluster","--conf","spark.executor.instances=2",\
         "--conf","spark.kubernetes.container.image=005010853392.dkr.ecr.us-east-1.amazonaws.com/spark_job_container:latest",\
         "local:///app/emr_spark_job.py"]
+        
