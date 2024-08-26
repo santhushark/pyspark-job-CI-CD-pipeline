@@ -52,6 +52,7 @@ jobs:
 
     - name: Run PySpark job on EMR
       run: |
+        set -x
         aws emr add-steps --cluster-id j-NIT0BL1JFZ2O \
         --steps Type=CUSTOM_JAR,Name="RunContainerizedSparkJob",ActionOnFailure=CONTINUE,Jar=command-runner.jar,\
         Args=["spark-submit","--master","yarn","--deploy-mode","cluster","--conf","spark.executor.instances=2",\
